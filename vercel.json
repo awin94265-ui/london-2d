@@ -1,8 +1,9 @@
 {
-  "rewrites": [
+  "redirects": [
     {
       "source": "/app",
-      "destination": "https://github.com/awin94265-ui/london-2d/releases/download/v1.0/app.apk"
+      "destination": "https://www.mediafire.com/file/ph207kvt32od69e/app.apk/file",
+      "permanent": true
     }
   ]
 }
