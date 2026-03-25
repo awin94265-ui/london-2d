@@ -2,7 +2,7 @@
   "redirects": [
     {
       "source": "/app",
-      "destination": "https://github.com/awin94265-ui/london-2d/releases/download/v1.0/app.apk",
+      "destination": "/app.apk",
       "permanent": true
     }
   ]
