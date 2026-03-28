@@ -91,7 +91,7 @@
         if (isClosedToday) {
             isLiveJumping = false;
             liveNum = "OFF"; // ပိတ်ရက်ဆိုရင် OFF လို့ပြမယ်
-            document.getElementById('promo-text').innerText = "TODAY MARKET CLOSED - ယနေ့ ပိတ်ပါသည်";
+            document.getElementById('promo-text').innerText = "TODAY MARKET CLOSED";
             document.getElementById('main-num').classList.remove('jumping'); // ခုန်တာရပ်မယ်
         } else {
             let lastConfirmedNum = "00", nextSlotToWait = null;
@@ -217,4 +217,3 @@
 </script>
 </body>
 </html>
-
