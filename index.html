@@ -9,19 +9,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         * { user-select: none; -webkit-tap-highlight-color: transparent; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        /* ✅ နောက်ခံကို အဖြူရောင် ပြောင်းထားသည် */
-        body, html { height: 100%; margin: 0; background-color: #f8fafc; overflow: hidden; display: flex; justify-content: center; }
+        body, html { height: 100%; margin: 0; background-color: #f8fafc; overflow: hidden; display: flex; justify-content: center; position: fixed; width: 100%; touch-action: none; }
         .main-container { height: 100dvh; width: 100%; max-width: 500px; display: flex; flex-direction: column; padding: 10px; background: #ffffff; position: relative; }
-        
         .brand { font-weight: 900; font-size: 24px; color: #1e293b; }
-        .brand span { color: #d97706; } /* Gold/Orange for 2D */
-
+        .brand span { color: #d97706; }
         .live-display { text-align: center; padding: 10px 0; min-height: 150px; display: flex; flex-direction: column; justify-content: center; }
-        /* ✅ ဂဏန်းအရောင်ကို ပိုတောက်အောင် ညှိထားသည် */
-        .main-num-text { font-size: 130px; font-weight: 950; color: #1e293b; line-height: 0.8; letter-spacing: -2px; text-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-        
+        .main-num-text { font-size: 130px; font-weight: 950; color: #1e293b; line-height: 0.8; letter-spacing: -2px; }
         .slots-area { flex-grow: 1; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
-        /* ✅ ကတ်ပြားများကို အဖြူရောင်နောက်ခံ၊ အနားသတ်အမည်းဖြင့် ပြင်ထားသည် */
         .result-card { border-radius: 20px; overflow: hidden; background: #f1f5f9; flex: 1; display: flex; flex-direction: column; border: 1px solid #e2e8f0; }
         .card-header { background: #1e293b; display: grid; grid-template-columns: 0.8fr 1.3fr 1.3fr 0.6fr; padding: 6px 0; }
         .card-header span { color: #cbd5e1; font-size: 10px; font-weight: 800; text-align: center; }
@@ -29,20 +23,13 @@
         .cell-time { font-weight: 900; font-size: 13px; color: #1e293b; text-align: center; }
         .cell-sv { font-weight: 900; font-size: 14px; color: #475569; text-align: center; font-family: 'monospace'; }
         .cell-2d { font-weight: 950; font-size: 32px; text-align: center; color: #1e293b; }
-
         .jumping { animation: floating 3s infinite ease-in-out; }
         @keyframes floating { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-
-        #history-panel { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; z-index: 100; display: none; flex-direction: column; }
-        #holiday-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); z-index: 200; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        #history-panel { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; z-index: 100; display: none; flex-direction: column; touch-action: pan-y; }
+        #history-list { flex-grow: 1; overflow-y: auto; padding: 16px; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
     </style>
 </head>
 <body oncontextmenu="return false;">
-
-<div id="holiday-overlay">
-    <h1 style="color:#1e293b; font-size: 40px; font-weight: 900;">MARKET CLOSED</h1>
-    <p style="color:#64748b; font-weight: 700; margin-top: 10px;">Enjoy your holiday!</p>
-</div>
 
 <div class="main-container">
     <div class="flex justify-between items-center p-2 mb-2">
@@ -54,24 +41,22 @@
 
     <div class="live-display">
         <div id="main-num" class="main-num-text jumping">00</div>
-        <div class="text-[#64748b] font-bold mt-4 flex justify-center gap-2 items-center text-sm">
-            <span id="check-icon" style="display:none">✅</span>
-            <span id="today-date">--/--/----</span> | <span id="active-time" class="text-[#d97706]">LOADING...</span>
+        <div class="text-[#64748b] font-bold mt-4 text-sm">
+            <span id="check-icon" style="display:none; color: green; font-weight: 900;">✅</span>
+            <span id="today-date">--/--/----</span> | <span id="live-clock" class="text-[#d97706]">--:--:--</span>
         </div>
     </div>
 
     <div id="slots" class="slots-area"></div>
 
-    <div class="bg-[#1e293b] text-white p-2 rounded-xl mt-3 font-black text-center text-[10px] uppercase shadow-lg">
-        <marquee scrollamount="5">Official Data Feed • Real-time Updates • Global Standard London 2D</marquee>
-    </div>
+    <marquee class="bg-[#1e293b] text-white p-2 rounded-xl mt-3 font-black text-center text-[10px] uppercase shadow-lg" scrollamount="5">Official Data Feed • Real-time Updates • London 2D</marquee>
 
     <div id="history-panel">
-        <div class="flex justify-between items-center p-5 bg-[#f1f5f9] border-b-2 border-[#1e293b]">
+        <div class="flex justify-between items-center p-5 bg-[#f1f5f9] border-b-2 border-[#1e293b] shrink-0">
             <span class="font-black text-xl text-[#1e293b]">HISTORY</span>
             <button onclick="toggleHistory(false)" class="bg-[#1e293b] text-white px-5 py-2 rounded-full font-black text-xs uppercase">BACK</button>
         </div>
-        <div id="history-list" class="flex-grow overflow-y-auto p-4 space-y-3"></div>
+        <div id="history-list" class="space-y-3"></div>
     </div>
 </div>
 
@@ -81,26 +66,126 @@
     const _supabase = supabase.createClient(S_URL, S_KEY);
 
     let confirmedResults = {}, liveNum = "00", isLiveJumping = true, isWaitingPeriod = false;
+    let lastHandledSlot = null, adminPreNum = null;
     const timeSlots = ["05:00 PM", "06:00 PM", "07:00 PM", "08:00 PM", "09:00 PM"];
 
-    function toggleHistory(show) {
-        document.getElementById('history-panel').style.display = show ? 'flex' : 'none';
-        if(show) loadHistory();
+    function updateClock() {
+        const now = new Date();
+        const h = now.getHours();
+        const m = now.getMinutes().toString().padStart(2, '0');
+        const s = now.getSeconds().toString().padStart(2, '0');
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        const displayH = (h % 12 || 12).toString().padStart(2, '0');
+        document.getElementById('live-clock').innerText = `${displayH}:${m}:${s} ${ampm}`;
+        document.getElementById('today-date').innerText = now.toLocaleDateString('en-GB').replace(/\//g, '/');
+    }
+    setInterval(updateClock, 1000);
+
+    async function fetchData() {
+        const { data } = await _supabase.from('results').select('*');
+        if (!data) return;
+        const now = new Date();
+        const today = now.toLocaleDateString('en-GB').replace(/\//g, '-');
+        
+        let lastConfirmedNum = "00", nextSlotToWait = null;
+        adminPreNum = null; 
+
+        timeSlots.forEach(slot => {
+            const entry = data.find(d => d.date === today && d.time_slot === slot);
+            const slotTime = new Date(now.toDateString() + ' ' + slot);
+            
+            if (entry && entry.number !== "--") {
+                if (now >= slotTime) {
+                    confirmedResults[slot] = entry.number;
+                    lastConfirmedNum = entry.number;
+                    if ((now - slotTime) / 1000 < 60 && lastHandledSlot !== slot && !isWaitingPeriod) {
+                        showResultEffect(entry.number, slot);
+                    }
+                } else if (!nextSlotToWait) {
+                    nextSlotToWait = slot;
+                    adminPreNum = entry.number; 
+                }
+            } else if (!nextSlotToWait) {
+                nextSlotToWait = slot;
+            }
+        });
+
+        if (!isWaitingPeriod) {
+            if (nextSlotToWait) {
+                isLiveJumping = true;
+            } else {
+                liveNum = lastConfirmedNum;
+                isLiveJumping = false;
+            }
+        }
+        render();
+    }
+
+    function showResultEffect(num, slot) {
+        isWaitingPeriod = true;
+        isLiveJumping = false;
+        liveNum = num;
+        lastHandledSlot = slot;
+        document.getElementById('check-icon').style.display = 'inline';
+        document.getElementById('main-num').classList.remove('jumping');
+        document.getElementById('main-num').innerText = num;
+        setTimeout(() => {
+            isWaitingPeriod = false;
+            document.getElementById('check-icon').style.display = 'none';
+            document.getElementById('main-num').classList.add('jumping');
+            fetchData(); 
+        }, 15000);
+    }
+
+    function render() {
+        if (!isWaitingPeriod) document.getElementById('main-num').innerText = liveNum;
+        let html = "", nextFound = false;
+        const d = new Date(), dStr = d.toLocaleDateString('en-GB').replace(/\//g, '-');
+        
+        timeSlots.forEach((t) => {
+            const res = confirmedResults[t] || "--";
+            const isConfirmed = res !== "--";
+            let active = (!isConfirmed && !nextFound);
+            if (active) nextFound = true;
+            let displayNum = isConfirmed ? res : (active ? liveNum : "00");
+            
+            let hash = 0; 
+            let seed = dStr + t + (isConfirmed ? "fixed" : liveNum); 
+            for (let i = 0; i < seed.length; i++) { hash = (hash << 5) - hash + seed.charCodeAt(i); hash |= 0; }
+            let s_pre = Math.abs(hash % 90000 + 10000).toString().padStart(5, '0');
+            let s_post = Math.abs(hash % 10).toString() + (displayNum !== "00" ? displayNum[0] : "0");
+            let v_pre = Math.abs((hash * 37) % 9000).toString().padStart(4, '0') + (displayNum !== "00" ? displayNum[1] : "0");
+            let v_post = Math.abs((hash * 13) % 90 + 10).toString().padStart(2, '0');
+            
+            html += `
+            <div class="result-card">
+                <div class="card-header"><span>TIME</span><span>SET</span><span>VALUE</span><span>2D</span></div>
+                <div class="card-body">
+                    <div class="cell-time">${t.replace(' PM','')}</div>
+                    <div class="cell-sv">${isConfirmed || (active && !isWaitingPeriod) ? s_pre + "." + s_post : '********'}</div>
+                    <div class="cell-sv">${isConfirmed || (active && !isWaitingPeriod) ? v_pre + "." + v_post : '********'}</div>
+                    <div class="cell-2d ${isConfirmed ? '' : 'text-slate-300'}">${res}</div>
+                </div>
+            </div>`;
+        });
+        document.getElementById('slots').innerHTML = html;
     }
 
     async function loadHistory() {
         const { data } = await _supabase.from('results').select('*').order('id', { ascending: false });
         if(!data) return;
+        const now = new Date();
+        const todayStr = now.toLocaleDateString('en-GB').replace(/\//g, '-');
         const grouped = data.reduce((acc, obj) => {
             const key = obj.date;
             if (!acc[key]) acc[key] = {};
-            acc[key][obj.time_slot] = obj.number;
+            const slotTime = new Date(now.toDateString() + ' ' + obj.time_slot);
+            if (obj.date === todayStr) acc[key][obj.time_slot] = (now >= slotTime) ? obj.number : '--';
+            else acc[key][obj.time_slot] = obj.number;
             return acc;
         }, {});
         const sortedDates = Object.keys(grouped).sort((a, b) => new Date(b.split('-').reverse().join('-')) - new Date(a.split('-').reverse().join('-')));
-        document.getElementById('history-list').innerHTML = sortedDates.map(date => {
-            if(grouped[date]["HOLIDAY"] === "CLOSED") return "";
-            return `
+        document.getElementById('history-list').innerHTML = sortedDates.map(date => `
             <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
                 <div class="bg-slate-100 p-2 text-[10px] font-black text-slate-600 text-center uppercase">📅 ${date.replaceAll('-', '/')}</div>
                 <div class="grid grid-cols-5 p-3 text-center gap-1">
@@ -109,104 +194,26 @@
                         return `<div><div class="text-[7px] text-slate-400 font-bold uppercase">${t.replace(' PM','')}</div><div class="text-base font-black ${val==='--'?'text-slate-300':'text-slate-800'}">${val}</div></div>`;
                     }).join('')}
                 </div>
-            </div>`;
-        }).join('');
+            </div>`).join('');
     }
 
-    async function fetchData(isUpdate = false) {
-        const { data } = await _supabase.from('results').select('*');
-        if (!data) return;
-        const today = new Date().toLocaleDateString('en-GB').replace(/\//g, '-');
-        
-        if(data.find(d => d.date === today && d.number === "CLOSED")) {
-            document.getElementById('holiday-overlay').style.display = 'flex';
-            return;
-        } else {
-            document.getElementById('holiday-overlay').style.display = 'none';
-        }
-
-        let lastConfirmedNum = "00", nextSlotToWait = null;
-        timeSlots.forEach(slot => {
-            const entry = data.find(d => d.date === today && d.time_slot === slot);
-            if (entry && entry.number !== "--") {
-                confirmedResults[slot] = entry.number;
-                lastConfirmedNum = entry.number;
-            } else {
-                confirmedResults[slot] = undefined;
-                if (!nextSlotToWait) nextSlotToWait = slot;
+    setInterval(() => { 
+        if (isLiveJumping && !isWaitingPeriod) { 
+            const now = new Date(), sec = now.getSeconds(), min = now.getMinutes();
+            if (sec % 5 === 0) {
+                if (min === 59 && sec === 55 && adminPreNum && adminPreNum !== "--") liveNum = adminPreNum;
+                else liveNum = Math.floor(Math.random()*100).toString().padStart(2,'0'); 
+                render(); 
             }
-        });
+        } 
+    }, 1000); 
 
-        if (isUpdate && !isWaitingPeriod) {
-            isWaitingPeriod = true; isLiveJumping = false; 
-            liveNum = lastConfirmedNum;
-            document.getElementById('check-icon').style.display = 'inline';
-            document.getElementById('main-num').classList.remove('jumping');
-            
-            setTimeout(() => { 
-                isWaitingPeriod = false; 
-                document.getElementById('check-icon').style.display = 'none'; 
-                document.getElementById('main-num').classList.add('jumping');
-                fetchData(); 
-            }, 15000); // 🕒 ၁၅ စက္ကန့် ဂဏန်းရပ်ခြင်း
-        } else if (!isWaitingPeriod) {
-            if (nextSlotToWait) { 
-                document.getElementById('active-time').innerText = nextSlotToWait; 
-                isLiveJumping = true; 
-            } else { 
-                document.getElementById('active-time').innerText = "CLOSED"; 
-                liveNum = lastConfirmedNum; isLiveJumping = false; 
-            }
-        }
-        render();
-    }
-
-    function render() {
-        document.getElementById('main-num').innerText = liveNum;
-        const d = new Date(), dStr = d.toLocaleDateString('en-GB').replace(/\//g, '-');
-        document.getElementById('today-date').innerText = dStr.replaceAll('-', '/');
-        let html = "", nextFound = false;
-        
-        timeSlots.forEach((t) => {
-            const res = confirmedResults[t] || "--";
-            const isConfirmed = res !== "--";
-            let active = (!isConfirmed && !nextFound);
-            if (active) nextFound = true;
-
-            let displayNum = isConfirmed ? res : (active ? liveNum : "00");
-            
-            let hash = 0, seed = dStr + t + displayNum;
-            for (let i = 0; i < seed.length; i++) { hash = (hash << 5) - hash + seed.charCodeAt(i); hash |= 0; }
-            let s_pre = Math.abs(hash % 90000 + 10000).toString(), s_post = Math.abs(hash % 9).toString() + displayNum[0];
-            let v_pre = Math.abs((hash * 37) % 9000 + 1000).toString() + displayNum[1], v_post = Math.abs((hash * 13) % 90 + 10).toString();
-            
-            let showSV = isConfirmed || (active && !isWaitingPeriod);
-
-            html += `
-            <div class="result-card">
-                <div class="card-header"><span>TIME</span><span>SET</span><span>VALUE</span><span>2D</span></div>
-                <div class="card-body">
-                    <div class="cell-time">${t.replace(' PM','')}</div>
-                    <div class="cell-sv">${showSV ? s_pre+'.'+s_post : '••••• • ••'}</div>
-                    <div class="cell-sv">${showSV ? v_pre+'.'+v_post : '••••• • ••'}</div>
-                    <div class="cell-2d ${isConfirmed ? '' : 'text-slate-300'}">${res}</div>
-                </div>
-            </div>`;
-        });
-        document.getElementById('slots').innerHTML = html;
-    }
-
-    setInterval(() => {
-        if (isLiveJumping && !isWaitingPeriod) {
-            liveNum = Math.floor(Math.random()*100).toString().padStart(2,'0');
-        }
-    }, 5000); 
-
-    function animate() { render(); requestAnimationFrame(animate); }
-    animate();
-
-    _supabase.channel('any').on('postgres_changes', { event: '*', schema: 'public', table: 'results' }, () => fetchData(true)).subscribe();
+    function toggleHistory(show) { document.getElementById('history-panel').style.display = show ? 'flex' : 'none'; if(show) loadHistory(); }
+    _supabase.channel('any').on('postgres_changes', { event: '*', schema: 'public', table: 'results' }, () => fetchData()).subscribe();
+    
+    updateClock(); 
     fetchData();
+    setInterval(fetchData, 3000); 
 </script>
 </body>
 </html>
