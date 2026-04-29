@@ -85,7 +85,6 @@
         const now = new Date();
         const today = now.toLocaleDateString('en-GB').replace(/\//g, '-');
         
-        // --- Sunday Check & Admin Closed Check ---
         const isSunday = now.getDay() === 0;
         const adminClosed = data.some(d => d.date === today && d.number === "CLOSED");
         isClosedToday = isSunday || adminClosed;
@@ -179,18 +178,29 @@
         const { data } = await _supabase.from('results').select('*').order('id', { ascending: false });
         if(!data) return;
 
+        const now = new Date();
+        const todayStr = now.toLocaleDateString('en-GB').replace(/\//g, '-');
+
         const grouped = data.reduce((acc, obj) => {
-            // ၁။ Admin က CLOSED လုပ်ထားတဲ့ရက်ကို လုံးဝမပြဘူး
             if (obj.number === "CLOSED") return acc;
 
-            // ၂။ Sunday ဖြစ်နေတဲ့ရက်ကို လုံးဝမပြဘူး
             const [d, m, y] = obj.date.split('-');
             const dateObj = new Date(`${y}-${m}-${d}`);
             if (dateObj.getDay() === 0) return acc;
 
             const key = obj.date;
             if (!acc[key]) acc[key] = {};
-            acc[key][obj.time_slot] = obj.number;
+
+            // Slot အချိန်ကို စစ်ဆေးခြင်း
+            const slotTime = new Date(now.toDateString() + ' ' + obj.time_slot);
+
+            if (obj.date === todayStr) {
+                // ဒီနေ့အတွက်ဆိုရင် အချိန်ကျော်မှသာ ဂဏန်းပြမယ်
+                acc[key][obj.time_slot] = (now >= slotTime) ? obj.number : '--';
+            } else {
+                // ကျန်ရက်တွေအတွက် ပုံမှန်ပြမယ်
+                acc[key][obj.time_slot] = obj.number;
+            }
             return acc;
         }, {});
 
